@@ -2,35 +2,19 @@ import Identity from "../models/Identity.js";
 import User from "../models/User.js";
 
 
-// Helper function (critical fix)
-const getUserId = (req) => {
-
- if(req.user?.id) return req.user.id;
-
- if(req.user?._id) return req.user._id;
-
- if(req.user?.userId) return req.user.userId;
-
- return null;
-
-};
-
-
-
-// ================= SAVE =================
+/* ================= SAVE IDENTITY ================= */
 
 export const saveIdentity = async (req,res)=>{
 
  try{
 
-  const userId = getUserId(req);
+  // Middleware sets req.user = decoded.id
+  const userId = req.user;
 
   if(!userId){
-
-   return res.status(400).json({
+   return res.status(401).json({
     message:"User not authenticated"
    });
-
   }
 
 
@@ -45,13 +29,12 @@ export const saveIdentity = async (req,res)=>{
   } = req.body;
 
 
-
   let identity = await Identity.findOne({
    user:userId
   });
 
 
-
+  // If identity already exists → update
   if(identity){
 
    identity.college = college;
@@ -65,11 +48,10 @@ export const saveIdentity = async (req,res)=>{
    await identity.save();
 
    return res.json(identity);
-
   }
 
 
-
+  // If new identity → create
   identity = await Identity.create({
 
    user:userId,
@@ -91,7 +73,9 @@ export const saveIdentity = async (req,res)=>{
 
   console.log("SAVE ERROR:",err);
 
-  res.status(500).json(err);
+  res.status(500).json({
+   message:"Server Error"
+  });
 
  }
 
@@ -99,13 +83,19 @@ export const saveIdentity = async (req,res)=>{
 
 
 
-// ================= CHECK =================
+/* ================= CHECK IDENTITY ================= */
 
 export const checkIdentity = async (req,res)=>{
 
  try{
 
-  const userId = getUserId(req);
+  const userId = req.user;
+
+  if(!userId){
+   return res.status(401).json({
+    message:"User not authenticated"
+   });
+  }
 
 
   const identity = await Identity.findOne({
@@ -132,7 +122,9 @@ export const checkIdentity = async (req,res)=>{
 
   console.log("CHECK ERROR:",err);
 
-  res.status(500).json(err);
+  res.status(500).json({
+   message:"Server Error"
+  });
 
  }
 
@@ -140,15 +132,19 @@ export const checkIdentity = async (req,res)=>{
 
 
 
-// ================= PROFILE =================
+/* ================= GET PROFILE ================= */
 
 export const getProfile = async (req,res)=>{
 
  try{
 
-  const userId = getUserId(req);
+  const userId = req.user;
 
-  console.log("PROFILE USER ID:",userId); // DEBUG
+  if(!userId){
+   return res.status(401).json({
+    message:"User not authenticated"
+   });
+  }
 
 
   const identity = await Identity.findOne({
@@ -157,10 +153,6 @@ export const getProfile = async (req,res)=>{
 
 
   const user = await User.findById(userId);
-
-
-  console.log("USER:",user);
-  console.log("IDENTITY:",identity);
 
 
   res.json({
@@ -185,7 +177,9 @@ export const getProfile = async (req,res)=>{
 
   console.log("PROFILE ERROR:",err);
 
-  res.status(500).json(err);
+  res.status(500).json({
+   message:"Server Error"
+  });
 
  }
 

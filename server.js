@@ -17,7 +17,7 @@ const app=express();
 
 
 app.use(cors({
-  origin: "https://hacksphere-one.vercel.app/",
+  origin: "https://hacksphere-one.vercel.app",
   credentials: true
 }));
 

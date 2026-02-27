@@ -11,14 +11,11 @@ import teamRoutes from "./routes/teamRoutes.js";
 
 dotenv.config();
 
-const app = express();
+const app=express();
+
+app.use(cors());
 
 app.use(express.json());
-
-app.use(cors({
-  origin: "https://hacksphere-one.vercel.app",
-  credentials: true
-}));
 
 connectDB();
 

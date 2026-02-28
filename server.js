@@ -35,6 +35,12 @@ app.use("/api/hackathons", hackathonRoutes);
 app.use("/api/identity", identityRoutes);
 app.use("/api/team", teamRoutes);
 
+app.get("/api/ping",(req,res)=>{
+ res.json({
+  status:"alive"
+ });
+});
+
 app.listen(5000, () => {
   console.log("Server Running");
 });
